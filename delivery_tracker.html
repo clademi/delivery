@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>外送管理 · Mi & Kai</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #fafaf9;
+  --white: #ffffff;
+  --border: #ebebea;
+  --border2: #dddcda;
+  --text: #1a1917;
+  --text2: #6b6966;
+  --text3: #a8a5a2;
+  --accent: #d97757;
+  --accent-light: #fdf3ee;
+  --panda: #e8411a;
+  --panda-bg: #fef2ee;
+  --uber: #1a9e5c;
+  --uber-bg: #edfbf3;
+  --mi: #c96a8a;
+  --mi-bg: #fdf0f4;
+  --kai: #5a7fd4;
+  --kai-bg: #eef2fc;
+  --green: #1a9e5c;
+  --red: #d94f4f;
+  --gold: #c98a1a;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Sora', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 80px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header */
+header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 11px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 8px; }
+.logo-icon {
+  width: 28px; height: 28px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.logo-text { font-size: 13px; font-weight: 600; letter-spacing: -.01em; }
+.logo-text span { color: var(--mi); }
+.logo-text span.k { color: var(--kai); }
+
+.user-toggle {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 99px;
+  padding: 3px; gap: 2px;
+}
+.utbtn {
+  padding: 4px 14px; border-radius: 99px;
+  font-size: 12px; font-weight: 600;
+  font-family: 'Sora', sans-serif;
+  border: none; cursor: pointer;
+  transition: all .18s;
+  background: transparent; color: var(--text3);
+}
+.utbtn.ami { background: var(--mi); color: #fff; }
+.utbtn.akai { background: var(--kai); color: #fff; }
+
+/* Tab bar */
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  display: flex; padding: 7px 0 12px; z-index: 100;
+}
+.tabbtn {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 3px;
+  background: none; border: none; cursor: pointer; padding: 2px 0;
+}
+.tabbtn .ti { font-size: 17px; transition: transform .18s; }
+.tabbtn .tl {
+  font-size: 10px; font-weight: 600;
+  font-family: 'Sora', sans-serif;
+  color: var(--text3); transition: color .18s;
+}
+.tabbtn.active .tl { color: var(--accent); }
+.tabbtn.active .ti { transform: scale(1.1); }
+
+/* Pages */
+.page { display: none; padding: 18px 16px; max-width: 560px; margin: 0 auto; }
+.page.active { display: block; animation: up .2s ease; }
+@keyframes up { from { opacity:0; transform:translateY(5px) } to { opacity:1; transform:translateY(0) } }
+
+.pg-title { font-size: 19px; font-weight: 700; letter-spacing: -.03em; margin-bottom: 2px; }
+.pg-sub { font-size: 12px; color: var(--text3); margin-bottom: 18px; }
+
+/* User banner */
+.ubanner {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px 3px 7px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; margin-bottom: 14px;
+}
+.ubmi { background: var(--mi-bg); color: var(--mi); }
+.ubkai { background: var(--kai-bg); color: var(--kai); }
+
+/* Block */
+.block {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px; margin-bottom: 11px;
+}
+.blk-head {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 13px; padding-bottom: 11px;
+  border-bottom: 1px solid var(--border);
+}
+.blk-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; flex-shrink: 0;
+}
+.blk-title { font-size: 13px; font-weight: 600; }
+.blk-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+/* Form */
+.fg { display: flex; flex-direction: column; gap: 4px; margin-bottom: 9px; }
+.fg:last-of-type { margin-bottom: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.full { grid-column: 1/-1; }
+.flabel {
+  font-size: 10px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .07em;
+}
+input, select {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text); padding: 8px 10px;
+  font-size: 13px; font-family: 'Sora', sans-serif;
+  outline: none; transition: border .14s, box-shadow .14s;
+  appearance: none; -webkit-appearance: none;
+}
+input:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(217,119,87,.11);
+  background: var(--white);
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a8a5a2' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 9px center; padding-right: 24px;
+}
+
+/* Platform */
+.plat-row { display: flex; gap: 7px; }
+.platbtn {
+  flex: 1; padding: 8px 4px; border-radius: var(--radius-sm);
+  font-size: 12px; font-weight: 600; font-family: 'Sora', sans-serif;
+  border: 1px solid var(--border2); background: var(--white);
+  cursor: pointer; transition: all .14s; color: var(--text3); text-align: center;
+}
+.platbtn.sp { border-color: var(--panda); background: var(--panda-bg); color: var(--panda); }
+.platbtn.su { border-color: var(--uber); background: var(--uber-bg); color: var(--uber); }
+
+/* Time */
+.time-grid { display: grid; grid-template-columns: 1fr 18px 1fr; align-items: end; gap: 6px; }
+.time-sep { text-align: center; padding-bottom: 8px; color: var(--text3); font-size: 11px; }
+.time-badge {
+  grid-column: 1/-1; background: var(--accent-light);
+  border-radius: var(--radius-sm); padding: 7px 10px;
+  font-size: 12px; font-weight: 600; color: var(--accent); display: none;
+}
+.time-badge.show { display: block; }
+
+/* Maint types */
+.mtype-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.mtbtn {
+  padding: 5px 11px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; font-family: 'Sora', sans-serif;
+  border: 1px solid var(--border2); background: var(--white);
+  color: var(--text3); cursor: pointer; transition: all .14s;
+}
+.mtbtn.active { background: var(--text); border-color: var(--text); color: #fff; }
+
+/* Submit */
+.submit-btn {
+  width: 100%; padding: 13px; border: none; border-radius: var(--radius);
+  font-size: 14px; font-weight: 600; font-family: 'Sora', sans-serif;
+  cursor: pointer; transition: all .18s; letter-spacing: -.01em;
+}
+.submit-btn:active { transform: scale(.98); opacity: .9; }
+.sbmi { background: var(--mi); color: #fff; }
+.sbkai { background: var(--kai); color: #fff; }
+
+/* Stats */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 11px; }
+.stat-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 13px; box-shadow: var(--shadow);
+}
+.slabel { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 5px; }
+.sval { font-size: 20px; font-weight: 700; letter-spacing: -.03em; }
+.ci { color: var(--green); } .ce { color: var(--red); }
+.cb { color: var(--gold); } .cn { color: var(--accent); }
+.cbl { color: var(--kai); }
+
+/* Month nav */
+.month-nav {
+  display: flex; align-items: center;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 9px 13px; margin-bottom: 11px;
+}
+.month-nav button {
+  background: var(--bg); border: 1px solid var(--border2);
+  border-radius: 6px; width: 28px; height: 28px;
+  font-size: 13px; cursor: pointer; color: var(--text2); font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+.month-nav span { flex: 1; text-align: center; font-size: 13px; font-weight: 600; }
+
+/* View switcher */
+.view-sw {
+  display: flex; background: var(--bg);
+  border: 1px solid var(--border2); border-radius: 99px;
+  padding: 3px; gap: 2px; margin-bottom: 11px;
+}
+.vbtn {
+  flex: 1; padding: 6px; border-radius: 99px;
+  font-size: 12px; font-weight: 600; font-family: 'Sora', sans-serif;
+  border: none; cursor: pointer; background: transparent;
+  color: var(--text3); transition: all .18s;
+}
+.vbtn.active { background: var(--white); color: var(--text); box-shadow: var(--shadow); }
+
+/* Platform bars */
+.plat-section { margin-bottom: 10px; }
+.plat-section:last-child { margin-bottom: 0; }
+.plat-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.plat-name { font-size: 12px; font-weight: 600; }
+.plat-pct { font-size: 11px; color: var(--text3); }
+.bar-wrap { background: var(--bg); border-radius: 99px; height: 6px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+.plat-detail { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* Divider */
+.div { height: 1px; background: var(--border); margin: 11px 0; }
+
+/* Chip row */
+.chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 11px; }
+.chip {
+  padding: 5px 12px; border-radius: 99px; font-size: 11px; font-weight: 600;
+  border: 1px solid var(--border2); background: var(--white);
+  color: var(--text3); cursor: pointer; transition: all .14s;
+  font-family: 'Sora', sans-serif;
+}
+.chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* List */
+.list-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.list-item:last-child { border-bottom: none; }
+.li-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.li-body { flex: 1; min-width: 0; }
+.li-title { font-size: 13px; font-weight: 600; }
+.li-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.li-right { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+.li-amt { font-size: 13px; font-weight: 700; letter-spacing: -.02em; }
+.delbtn {
+  background: none; border: 1px solid var(--border2);
+  border-radius: 6px; padding: 3px 8px;
+  font-size: 11px; color: var(--text3); cursor: pointer;
+  font-family: 'Sora', sans-serif; transition: all .14s;
+}
+.delbtn:hover { border-color: var(--red); color: var(--red); }
+
+/* Pills */
+.pill { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 99px; font-size: 10px; font-weight: 600; }
+.pp { background: var(--panda-bg); color: var(--panda); }
+.pu { background: var(--uber-bg); color: var(--uber); }
+.pfuel { background: #fff7e0; color: #b07800; }
+.pmaint { background: #f2f2f0; color: #555; }
+
+/* Total row */
+.total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 13px; background: var(--white);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  margin-top: 8px;
+}
+.total-row .tl { font-size: 12px; font-weight: 600; color: var(--text3); }
+.total-row .tv { font-size: 14px; font-weight: 700; letter-spacing: -.02em; }
+
+/* Monthly table */
+.monthly-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.monthly-table th {
+  padding: 8px 10px; text-align: left;
+  font-size: 10px; font-weight: 600; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .07em;
+  border-bottom: 1px solid var(--border);
+}
+.monthly-table td {
+  padding: 10px 10px; border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.monthly-table tr:last-child td { border-bottom: none; }
+.monthly-table tr:hover td { background: var(--bg); }
+.month-col { font-weight: 600; color: var(--text2); }
+.no-data { color: var(--text3); }
+
+/* Empty */
+.empty { text-align: center; padding: 28px 20px; color: var(--text3); font-size: 13px; }
+.empty-icon { font-size: 28px; margin-bottom: 8px; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 92px; left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--text); color: #fff;
+  padding: 9px 20px; border-radius: 99px;
+  font-size: 12px; font-weight: 600;
+  opacity: 0; transition: all .25s; z-index: 999; white-space: nowrap;
+  font-family: 'Sora', sans-serif;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Loading overlay */
+.loading {
+  position: fixed; inset: 0;
+  background: rgba(250,250,249,.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 999; backdrop-filter: blur(4px);
+  font-size: 13px; font-weight: 600; color: var(--text2);
+  gap: 10px; display: none;
+}
+.loading.show { display: flex; }
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid var(--border2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <span id="loading-text">載入中…</span>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🛵</div>
+    <div class="logo-text"><span>Mi</span> & <span class="k">Kai</span></div>
+  </div>
+  <div class="user-toggle">
+    <button class="utbtn ami" id="btn-mi" onclick="setUser('Mi')">Mi</button>
+    <button class="utbtn" id="btn-kai" onclick="setUser('Kai')">Kai</button>
+  </div>
+</header>
+
+<!-- ① 當天記錄 -->
+<div id="page-today" class="page active">
+  <div class="pg-title">當天記錄</div>
+  <div class="pg-sub" id="today-date-sub"></div>
+  <div class="ubanner ubmi" id="today-banner">● Mi 的記錄</div>
+
+  <!-- 跑單 -->
+  <div class="block">
+    <div class="blk-head">
+      <div class="blk-icon" style="background:#fef2ee">📦</div>
+      <div><div class="blk-title">跑單</div><div class="blk-sub">平台、單數、收入</div></div>
+    </div>
+    <div class="fg"><div class="flabel">日期</div><input type="date" id="o-date"></div>
+    <div class="fg">
+      <div class="flabel">平台</div>
+      <div class="plat-row">
+        <button class="platbtn" id="plat-panda" onclick="selPlat('panda')">🐼 熊貓</button>
+        <button class="platbtn" id="plat-uber" onclick="selPlat('uber')">🦖 Uber Eats</button>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="fg"><div class="flabel">單數</div><input type="number" id="o-count" placeholder="0" min="0"></div>
+      <div class="fg"><div class="flabel">收入 (元)</div><input type="number" id="o-income" placeholder="0" min="0"></div>
+      <div class="fg full"><div class="flabel">獎金 (元)</div><input type="number" id="o-bonus" placeholder="0" min="0"></div>
+    </div>
+    <div class="fg">
+      <div class="flabel">工作時間</div>
+      <div class="time-grid">
+        <div class="fg"><div class="flabel">開始</div><select id="o-start" onchange="calcHours()"></select></div>
+        <div class="time-sep">→</div>
+        <div class="fg"><div class="flabel">結束</div><select id="o-end" onchange="calcHours()"></select></div>
+        <div class="time-badge" id="time-badge">⏱ 0 小時</div>
+      </div>
+    </div>
+    <div class="fg"><div class="flabel">備註</div><input type="text" id="o-note" placeholder="例如：下雨加成、假日衝刺…"></div>
+  </div>
+
+  <!-- 加油 -->
+  <div class="block">
+    <div class="blk-head">
+      <div class="blk-icon" style="background:#fffbe0">⛽</div>
+      <div><div class="blk-title">加油</div><div class="blk-sub">今日加油費（可留空）</div></div>
+    </div>
+    <div class="grid2">
+      <div class="fg"><div class="flabel">金額 (元)</div><input type="number" id="f-amount" placeholder="0" min="0"></div>
+      <div class="fg"><div class="flabel">備註</div><input type="text" id="f-note" placeholder="例如：92無鉛…"></div>
+    </div>
+  </div>
+
+  <!-- 機車保養 -->
+  <div class="block">
+    <div class="blk-head">
+      <div class="blk-icon" style="background:#f0f5ff">🔧</div>
+      <div><div class="blk-title">機車保養</div><div class="blk-sub">今日保養（可留空）</div></div>
+    </div>
+    <div class="fg">
+      <div class="flabel">保養項目</div>
+      <div class="mtype-row">
+        <button class="mtbtn" onclick="selMaint('oil',this)">🛢 機油</button>
+        <button class="mtbtn" onclick="selMaint('gear',this)">⚙️ 齒輪油</button>
+        <button class="mtbtn" onclick="selMaint('tire',this)">🔄 輪胎</button>
+        <button class="mtbtn" onclick="selMaint('service',this)">🔧 定期保養</button>
+        <button class="mtbtn" onclick="selMaint('other',this)">🔩 其他</button>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="fg"><div class="flabel">費用 (元)</div><input type="number" id="m-cost" placeholder="0" min="0"></div>
+      <div class="fg"><div class="flabel">里程數 (km)</div><input type="number" id="m-km" placeholder="0" min="0"></div>
+      <div class="fg full"><div class="flabel">備註</div><input type="text" id="m-note" placeholder="例如：換 Maxxis 前輪…"></div>
+    </div>
+  </div>
+
+  <button class="submit-btn sbmi" id="submit-btn" onclick="submitAll()">儲存今日記錄</button>
+</div>
+
+<!-- ② 總覽 -->
+<div id="page-overview" class="page">
+  <div class="pg-title">總覽</div>
+  <div class="pg-sub">本月收支摘要</div>
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">‹</button>
+    <span id="ov-mlabel"></span>
+    <button onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="view-sw">
+    <button class="vbtn active" id="vb-Mi" onclick="setOvView('Mi',this)">Mi</button>
+    <button class="vbtn" id="vb-Kai" onclick="setOvView('Kai',this)">Kai</button>
+    <button class="vbtn" id="vb-all" onclick="setOvView('all',this)">合計</button>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="slabel">本月收入</div><div class="sval ci" id="ov-income">$0</div></div>
+    <div class="stat-card"><div class="slabel">本月支出</div><div class="sval ce" id="ov-expense">$0</div></div>
+    <div class="stat-card"><div class="slabel">獎金合計</div><div class="sval cb" id="ov-bonus">$0</div></div>
+    <div class="stat-card"><div class="slabel">淨收益</div><div class="sval cn" id="ov-net">$0</div></div>
+  </div>
+  <div class="block">
+    <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:11px">平台分析</div>
+    <div class="plat-section">
+      <div class="plat-head"><span class="plat-name" style="color:var(--panda)">🐼 熊貓</span><span class="plat-pct" id="ov-pp">0%</span></div>
+      <div class="bar-wrap"><div class="bar-fill" id="ov-pb" style="background:var(--panda);width:0%"></div></div>
+      <div class="plat-detail" id="ov-pd">$0 · 0單</div>
+    </div>
+    <div class="div"></div>
+    <div class="plat-section">
+      <div class="plat-head"><span class="plat-name" style="color:var(--uber)">🦖 Uber Eats</span><span class="plat-pct" id="ov-up">0%</span></div>
+      <div class="bar-wrap"><div class="bar-fill" id="ov-ub" style="background:var(--uber);width:0%"></div></div>
+      <div class="plat-detail" id="ov-ud">$0 · 0單</div>
+    </div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="slabel">總單數</div><div class="sval cbl" id="ov-cnt">0</div></div>
+    <div class="stat-card"><div class="slabel">工作天</div><div class="sval cbl" id="ov-days">0</div></div>
+    <div class="stat-card"><div class="slabel">每單均價</div><div class="sval ci" id="ov-avg">$0</div></div>
+    <div class="stat-card"><div class="slabel">日均收益</div><div class="sval ci" id="ov-daily">$0</div></div>
+  </div>
+</div>
+
+<!-- ③ 跑單記錄 -->
+<div id="page-orders" class="page">
+  <div class="pg-title">跑單記錄</div>
+  <div class="pg-sub">歷史跑單明細</div>
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">‹</button>
+    <span id="ord-mlabel"></span>
+    <button onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="view-sw">
+    <button class="vbtn active" id="ovb-Mi" onclick="setOrdView('Mi',this)">Mi</button>
+    <button class="vbtn" id="ovb-Kai" onclick="setOrdView('Kai',this)">Kai</button>
+    <button class="vbtn" id="ovb-all" onclick="setOrdView('all',this)">合計</button>
+  </div>
+  <div class="chip-row">
+    <div class="chip active" onclick="setOrdFilter('all',this)">全部</div>
+    <div class="chip" onclick="setOrdFilter('panda',this)">🐼 熊貓</div>
+    <div class="chip" onclick="setOrdFilter('uber',this)">🦖 Uber</div>
+  </div>
+  <div class="block" id="ord-list"></div>
+  <div class="total-row" id="ord-total" style="display:none">
+    <span class="tl">本月跑單合計</span>
+    <span class="tv ci" id="ord-total-val"></span>
+  </div>
+</div>
+
+<!-- ④ 支出 -->
+<div id="page-expenses" class="page">
+  <div class="pg-title">支出</div>
+  <div class="pg-sub">加油與保養明細</div>
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">‹</button>
+    <span id="exp-mlabel"></span>
+    <button onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="view-sw">
+    <button class="vbtn active" id="evb-Mi" onclick="setExpView('Mi',this)">Mi</button>
+    <button class="vbtn" id="evb-Kai" onclick="setExpView('Kai',this)">Kai</button>
+    <button class="vbtn" id="evb-all" onclick="setExpView('all',this)">合計</button>
+  </div>
+  <div class="chip-row">
+    <div class="chip active" onclick="setExpFilter('all',this)">全部</div>
+    <div class="chip" onclick="setExpFilter('fuel',this)">⛽ 加油</div>
+    <div class="chip" onclick="setExpFilter('maint',this)">🔧 保養</div>
+  </div>
+  <div class="block" id="exp-list"></div>
+  <div class="total-row" id="exp-total" style="display:none">
+    <span class="tl">本月支出合計</span>
+    <span class="tv ce" id="exp-total-val"></span>
+  </div>
+</div>
+
+<!-- ⑤ 每月狀況 -->
+<div id="page-monthly" class="page">
+  <div class="pg-title">每月狀況</div>
+  <div class="pg-sub" id="monthly-year-sub"></div>
+  <div class="month-nav">
+    <button onclick="changeYear(-1)">‹</button>
+    <span id="yr-label"></span>
+    <button onclick="changeYear(1)">›</button>
+  </div>
+  <div class="view-sw">
+    <button class="vbtn active" id="mvb-Mi" onclick="setMoView('Mi',this)">Mi</button>
+    <button class="vbtn" id="mvb-Kai" onclick="setMoView('Kai',this)">Kai</button>
+    <button class="vbtn" id="mvb-all" onclick="setMoView('all',this)">合計</button>
+  </div>
+  <div class="block" style="padding:0;overflow:hidden">
+    <table class="monthly-table">
+      <thead>
+        <tr>
+          <th>月份</th>
+          <th>收入</th>
+          <th>支出</th>
+          <th>淨收益</th>
+          <th>單數</th>
+        </tr>
+      </thead>
+      <tbody id="monthly-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Tab Bar -->
+<div class="tabbar">
+  <button class="tabbtn active" onclick="switchPage('today',this)"><span class="ti">📝</span><span class="tl">當天記錄</span></button>
+  <button class="tabbtn" onclick="switchPage('overview',this)"><span class="ti">📊</span><span class="tl">總覽</span></button>
+  <button class="tabbtn" onclick="switchPage('orders',this)"><span class="ti">📋</span><span class="tl">跑單記錄</span></button>
+  <button class="tabbtn" onclick="switchPage('expenses',this)"><span class="ti">💸</span><span class="tl">支出</span></button>
+  <button class="tabbtn" onclick="switchPage('monthly',this)"><span class="ti">📅</span><span class="tl">每月狀況</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// CONFIG — Google Sheets API
+// ══════════════════════════════════════
+const API_URL = 'https://script.google.com/macros/s/AKfycbyzP0Fwc-DL76sD9gMhgGzFxcBKVjDIBdguj4tWPw5_fEg1r4IPcNVWFG-VlYlqzVDB/exec';
+
+async function api(params) {
+  const url = API_URL + '?' + new URLSearchParams(params).toString();
+  const res = await fetch(url);
+  return res.json();
+}
+
+// ══════════════════════════════════════
+// LOCAL CACHE
+// ══════════════════════════════════════
+let cache = { orders: [], expenses: [] };
+
+async function loadAll() {
+  showLoading('載入資料…');
+  try {
+    const [o, e] = await Promise.all([
+      api({ action: 'getOrders' }),
+      api({ action: 'getExpenses' })
+    ]);
+    cache.orders = (o.orders || []).map(normalizeOrder);
+    cache.expenses = (e.expenses || []).map(normalizeExpense);
+  } catch(err) {
+    showToast('⚠️ 載入失敗，請檢查網路');
+  }
+  hideLoading();
+  renderAll();
+}
+
+function normalizeOrder(o) {
+  return {
+    id: String(o.id),
+    user: o.user,
+    date: String(o.date).slice(0,10),
+    platform: o.platform,
+    count: parseInt(o.count)||0,
+    income: parseFloat(o.income)||0,
+    bonus: parseFloat(o.bonus)||0,
+    startH: parseInt(o.startH)||0,
+    endH: parseInt(o.endH)||0,
+    hours: parseInt(o.hours)||0,
+    note: o.note||''
+  };
+}
+function normalizeExpense(e) {
+  return {
+    id: String(e.id),
+    user: e.user,
+    date: String(e.date).slice(0,10),
+    type: e.type,
+    maintType: e.maintType||'',
+    amount: parseFloat(e.amount)||0,
+    km: parseInt(e.km)||0,
+    note: e.note||''
+  };
+}
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let currentUser = 'Mi';
+let currentMonth = new Date();
+let currentYear = new Date().getFullYear();
+let selPlatform = '', selMaintType = '';
+let ovView = 'Mi', ordView = 'Mi', expView = 'Mi', moView = 'Mi';
+let ordFilter = 'all', expFilter = 'all';
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+function init() {
+  // Build hour selects
+  ['o-start','o-end'].forEach(id => {
+    const s = document.getElementById(id);
+    for(let h=0;h<24;h++) {
+      s.innerHTML += `<option value="${h}">${String(h).padStart(2,'0')}:00</option>`;
+    }
+  });
+  document.getElementById('o-start').value = 8;
+  document.getElementById('o-end').value = 18;
+  calcHours();
+
+  const t = new Date();
+  document.getElementById('o-date').value = t.toISOString().slice(0,10);
+  document.getElementById('today-date-sub').textContent = t.getFullYear()+'年'+(t.getMonth()+1)+'月'+t.getDate()+'日';
+
+  loadAll();
+}
+
+// ══════════════════════════════════════
+// USER
+// ══════════════════════════════════════
+function setUser(u) {
+  currentUser = u;
+  document.getElementById('btn-mi').className = 'utbtn'+(u==='Mi'?' ami':'');
+  document.getElementById('btn-kai').className = 'utbtn'+(u==='Kai'?' akai':'');
+  const b = document.getElementById('today-banner');
+  b.textContent = '● '+u+' 的記錄';
+  b.className = 'ubanner '+(u==='Mi'?'ubmi':'ubkai');
+  document.getElementById('submit-btn').className = 'submit-btn '+(u==='Mi'?'sbmi':'sbkai');
+}
+
+// ══════════════════════════════════════
+// PLATFORM / MAINT SELECT
+// ══════════════════════════════════════
+function selPlat(p) {
+  selPlatform = p;
+  document.getElementById('plat-panda').className = 'platbtn'+(p==='panda'?' sp':'');
+  document.getElementById('plat-uber').className = 'platbtn'+(p==='uber'?' su':'');
+}
+function selMaint(t, el) {
+  if(selMaintType===t){ selMaintType=''; document.querySelectorAll('.mtbtn').forEach(b=>b.classList.remove('active')); }
+  else { selMaintType=t; document.querySelectorAll('.mtbtn').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+}
+
+// ══════════════════════════════════════
+// TIME
+// ══════════════════════════════════════
+function calcHours() {
+  const s=parseInt(document.getElementById('o-start').value);
+  const e=parseInt(document.getElementById('o-end').value);
+  const h = e>=s ? e-s : 24-s+e;
+  const badge = document.getElementById('time-badge');
+  badge.textContent = '⏱ '+h+' 小時'+(e<s?' (跨日)':'');
+  badge.classList.add('show');
+}
+const getHours=()=>{ const s=parseInt(document.getElementById('o-start').value),e=parseInt(document.getElementById('o-end').value); return e>=s?e-s:24-s+e; };
+
+// ══════════════════════════════════════
+// SUBMIT
+// ══════════════════════════════════════
+async function submitAll() {
+  const date = document.getElementById('o-date').value;
+  const count = parseInt(document.getElementById('o-count').value)||0;
+  const income = parseFloat(document.getElementById('o-income').value)||0;
+  const bonus = parseFloat(document.getElementById('o-bonus').value)||0;
+  const note = document.getElementById('o-note').value;
+  const fAmt = parseFloat(document.getElementById('f-amount').value)||0;
+  const fNote = document.getElementById('f-note').value;
+  const mCost = parseFloat(document.getElementById('m-cost').value)||0;
+  const mKm = parseInt(document.getElementById('m-km').value)||0;
+  const mNote = document.getElementById('m-note').value;
+
+  if(!date){ showToast('⚠️ 請填寫日期'); return; }
+  if((income>0||count>0)&&!selPlatform){ showToast('⚠️ 有跑單請選擇平台'); return; }
+  if(income===0&&count===0&&fAmt===0&&mCost===0){ showToast('⚠️ 請填入至少一項資料'); return; }
+
+  showLoading('儲存中…');
+  try {
+    const startH = parseInt(document.getElementById('o-start').value);
+    const endH = parseInt(document.getElementById('o-end').value);
+
+    if(income>0||count>0) {
+      const res = await api({ action:'addOrder', user:currentUser, date, platform:selPlatform, count, income, bonus, startH, endH, hours:getHours(), note });
+      if(res.success) cache.orders.push(normalizeOrder({ id:res.id, user:currentUser, date, platform:selPlatform, count, income, bonus, startH, endH, hours:getHours(), note }));
+    }
+    if(fAmt>0) {
+      const res = await api({ action:'addExpense', user:currentUser, date, type:'fuel', amount:fAmt, note:fNote });
+      if(res.success) cache.expenses.push(normalizeExpense({ id:res.id, user:currentUser, date, type:'fuel', amount:fAmt, note:fNote }));
+    }
+    if(mCost>0) {
+      const res = await api({ action:'addExpense', user:currentUser, date, type:'maint', maintType:selMaintType||'other', amount:mCost, km:mKm, note:mNote });
+      if(res.success) cache.expenses.push(normalizeExpense({ id:res.id, user:currentUser, date, type:'maint', maintType:selMaintType||'other', amount:mCost, km:mKm, note:mNote }));
+    }
+    resetForm();
+    renderAll();
+    showToast('✅ '+currentUser+' 的記錄已儲存！');
+  } catch(err) {
+    showToast('⚠️ 儲存失敗，請重試');
+  }
+  hideLoading();
+}
+
+function resetForm() {
+  ['o-count','o-income','o-bonus','o-note','f-amount','f-note','m-cost','m-km','m-note'].forEach(id=>document.getElementById(id).value='');
+  selPlatform=''; selMaintType='';
+  document.getElementById('plat-panda').className='platbtn';
+  document.getElementById('plat-uber').className='platbtn';
+  document.querySelectorAll('.mtbtn').forEach(b=>b.classList.remove('active'));
+}
+
+// ══════════════════════════════════════
+// DELETE
+// ══════════════════════════════════════
+async function delOrder(id) {
+  if(!confirm('確定刪除？')) return;
+  showLoading('刪除中…');
+  try {
+    await api({ action:'deleteOrder', id });
+    cache.orders = cache.orders.filter(o=>String(o.id)!==String(id));
+    renderAll(); showToast('已刪除');
+  } catch { showToast('⚠️ 刪除失敗'); }
+  hideLoading();
+}
+async function delExp(id) {
+  if(!confirm('確定刪除？')) return;
+  showLoading('刪除中…');
+  try {
+    await api({ action:'deleteExpense', id });
+    cache.expenses = cache.expenses.filter(e=>String(e.id)!==String(id));
+    renderAll(); showToast('已刪除');
+  } catch { showToast('⚠️ 刪除失敗'); }
+  hideLoading();
+}
+
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+function switchPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+function changeMonth(d) { currentMonth.setMonth(currentMonth.getMonth()+d); renderAll(); }
+function changeYear(d) { currentYear+=d; renderMonthly(); updateMonthLabels(); }
+
+function setOvView(v,el){ ovView=v; document.querySelectorAll('[id^="vb-"]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderOverview(); }
+function setOrdView(v,el){ ordView=v; document.querySelectorAll('[id^="ovb-"]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderOrders(); }
+function setExpView(v,el){ expView=v; document.querySelectorAll('[id^="evb-"]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderExpenses(); }
+function setMoView(v,el){ moView=v; document.querySelectorAll('[id^="mvb-"]').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderMonthly(); }
+function setOrdFilter(f,el){ ordFilter=f; document.querySelectorAll('#page-orders .chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); renderOrders(); }
+function setExpFilter(f,el){ expFilter=f; document.querySelectorAll('#page-expenses .chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); renderExpenses(); }
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+const fmt = n => '$'+Number(n).toLocaleString();
+const pad = n => String(n).padStart(2,'0');
+const curYM = () => currentMonth.getFullYear()+'-'+pad(currentMonth.getMonth()+1);
+const fmtDate = d => d.replace(/-/g,'/');
+const maintLbl = { oil:'🛢 機油', gear:'⚙️ 齒輪油', tire:'🔄 輪胎', service:'🔧 定期保養', other:'🔩 其他' };
+
+function getOrdersByYM(users, ym) {
+  return cache.orders.filter(o=>(users==='all'||o.user===users)&&o.date.startsWith(ym));
+}
+function getExpsByYM(users, ym) {
+  return cache.expenses.filter(e=>(users==='all'||e.user===users)&&e.date.startsWith(ym));
+}
+
+function updateMonthLabels() {
+  const lbl = currentMonth.getFullYear()+'年'+(currentMonth.getMonth()+1)+'月';
+  ['ov-mlabel','ord-mlabel','exp-mlabel'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=lbl; });
+  document.getElementById('yr-label').textContent = currentYear+'年';
+}
+
+// ══════════════════════════════════════
+// RENDER OVERVIEW
+// ══════════════════════════════════════
+function renderOverview() {
+  const orders = getOrdersByYM(ovView, curYM());
+  const exps = getExpsByYM(ovView, curYM());
+  const totalIn = orders.reduce((s,o)=>s+o.income+o.bonus,0);
+  const totalBonus = orders.reduce((s,o)=>s+o.bonus,0);
+  const totalExp = exps.reduce((s,e)=>s+e.amount,0);
+  const net = totalIn-totalExp;
+  const cnt = orders.reduce((s,o)=>s+o.count,0);
+  const days = new Set(orders.map(o=>o.date)).size;
+
+  document.getElementById('ov-income').textContent=fmt(totalIn);
+  document.getElementById('ov-expense').textContent=fmt(totalExp);
+  document.getElementById('ov-bonus').textContent=fmt(totalBonus);
+  const nEl=document.getElementById('ov-net'); nEl.textContent=fmt(net); nEl.className='sval '+(net>=0?'cn':'ce');
+  document.getElementById('ov-cnt').textContent=cnt;
+  document.getElementById('ov-days').textContent=days;
+  document.getElementById('ov-avg').textContent=cnt?fmt(Math.round(totalIn/cnt)):'$0';
+  document.getElementById('ov-daily').textContent=days?fmt(Math.round(totalIn/days)):'$0';
+
+  const pInc=orders.filter(o=>o.platform==='panda').reduce((s,o)=>s+o.income+o.bonus,0);
+  const pCnt=orders.filter(o=>o.platform==='panda').reduce((s,o)=>s+o.count,0);
+  const uInc=orders.filter(o=>o.platform==='uber').reduce((s,o)=>s+o.income+o.bonus,0);
+  const uCnt=orders.filter(o=>o.platform==='uber').reduce((s,o)=>s+o.count,0);
+  const tot=pInc+uInc||1;
+  const pp=Math.round(pInc/tot*100), up=100-pp;
+  document.getElementById('ov-pp').textContent=pp+'%';
+  document.getElementById('ov-up').textContent=up+'%';
+  document.getElementById('ov-pb').style.width=pp+'%';
+  document.getElementById('ov-ub').style.width=up+'%';
+  document.getElementById('ov-pd').textContent=fmt(pInc)+' · '+pCnt+'單';
+  document.getElementById('ov-ud').textContent=fmt(uInc)+' · '+uCnt+'單';
+}
+
+// ══════════════════════════════════════
+// RENDER ORDERS
+// ══════════════════════════════════════
+function renderOrders() {
+  let orders = getOrdersByYM(ordView, curYM());
+  if(ordFilter!=='all') orders=orders.filter(o=>o.platform===ordFilter);
+  orders.sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('ord-list');
+  if(!orders.length){ el.innerHTML='<div class="empty"><div class="empty-icon">📭</div>這個月還沒有跑單記錄</div>'; document.getElementById('ord-total').style.display='none'; return; }
+  const total=orders.reduce((s,o)=>s+o.income+o.bonus,0);
+  const platPill=p=>p==='panda'?'<span class="pill pp">🐼 熊貓</span>':'<span class="pill pu">🦖 Uber</span>';
+  const platColor=p=>p==='panda'?'var(--panda)':'var(--uber)';
+  const showDel = ordView!=='all';
+  el.innerHTML=orders.map(o=>`
+    <div class="list-item">
+      <div class="li-dot" style="background:${platColor(o.platform)}"></div>
+      <div class="li-body">
+        <div class="li-title">${fmtDate(o.date)} ${platPill(o.platform)} ${ordView==='all'?`<span style="font-size:10px;color:${o.user==='Mi'?'var(--mi)':'var(--kai)'}">${o.user}</span>`:''}</div>
+        <div class="li-sub">${o.count}單 · ${o.hours}h · ${pad(o.startH)}:00→${pad(o.endH)}:00${o.bonus>0?' · 獎金'+fmt(o.bonus):''}${o.note?' · '+o.note:''}</div>
+      </div>
+      <div class="li-right">
+        <div class="li-amt ci">${fmt(o.income+o.bonus)}</div>
+        ${showDel?`<button class="delbtn" onclick="delOrder('${o.id}')">刪</button>`:''}
+      </div>
+    </div>`).join('');
+  document.getElementById('ord-total').style.display='flex';
+  document.getElementById('ord-total-val').textContent=fmt(total);
+}
+
+// ══════════════════════════════════════
+// RENDER EXPENSES
+// ══════════════════════════════════════
+function renderExpenses() {
+  let exps = getExpsByYM(expView, curYM());
+  if(expFilter==='fuel') exps=exps.filter(e=>e.type==='fuel');
+  else if(expFilter==='maint') exps=exps.filter(e=>e.type==='maint');
+  exps.sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('exp-list');
+  if(!exps.length){ el.innerHTML='<div class="empty"><div class="empty-icon">💸</div>這個月沒有支出記錄</div>'; document.getElementById('exp-total').style.display='none'; return; }
+  const total=exps.reduce((s,e)=>s+e.amount,0);
+  const showDel = expView!=='all';
+  el.innerHTML=exps.map(e=>`
+    <div class="list-item">
+      <div class="li-dot" style="background:${e.type==='fuel'?'#c98a1a':'#888'}"></div>
+      <div class="li-body">
+        <div class="li-title">
+          ${e.type==='fuel'?'<span class="pill pfuel">⛽ 加油</span>':'<span class="pill pmaint">'+(maintLbl[e.maintType]||'🔩 其他')+'</span>'}
+          <span style="color:var(--text3);font-size:10px;margin-left:4px">${fmtDate(e.date)}</span>
+          ${expView==='all'?`<span style="font-size:10px;color:${e.user==='Mi'?'var(--mi)':'var(--kai)'};margin-left:4px">${e.user}</span>`:''}
+        </div>
+        <div class="li-sub">${e.type==='maint'&&e.km?'里程 '+e.km.toLocaleString()+'km · ':''}${e.note||'—'}</div>
+      </div>
+      <div class="li-right">
+        <div class="li-amt ce">${fmt(e.amount)}</div>
+        ${showDel?`<button class="delbtn" onclick="delExp('${e.id}')">刪</button>`:''}
+      </div>
+    </div>`).join('');
+  document.getElementById('exp-total').style.display='flex';
+  document.getElementById('exp-total-val').textContent=fmt(total);
+}
+
+// ══════════════════════════════════════
+// RENDER MONTHLY
+// ══════════════════════════════════════
+function renderMonthly() {
+  const months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const tbody = document.getElementById('monthly-tbody');
+  tbody.innerHTML = months.map((m,i)=>{
+    const ym = currentYear+'-'+pad(i+1);
+    const orders = getOrdersByYM(moView, ym);
+    const exps = getExpsByYM(moView, ym);
+    const income = orders.reduce((s,o)=>s+o.income+o.bonus,0);
+    const expense = exps.reduce((s,e)=>s+e.amount,0);
+    const net = income-expense;
+    const cnt = orders.reduce((s,o)=>s+o.count,0);
+    const hasData = income>0||expense>0;
+    return `<tr>
+      <td class="month-col">${m}</td>
+      <td class="${hasData?'ci':'no-data'}">${hasData?fmt(income):'—'}</td>
+      <td class="${hasData?'ce':'no-data'}">${hasData?fmt(expense):'—'}</td>
+      <td class="${hasData?(net>=0?'cn':'ce'):'no-data'}">${hasData?fmt(net):'—'}</td>
+      <td class="${hasData?'cbl':'no-data'}">${hasData?cnt:'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════
+function renderAll() {
+  updateMonthLabels();
+  renderOverview();
+  renderOrders();
+  renderExpenses();
+  renderMonthly();
+}
+
+// ══════════════════════════════════════
+// LOADING / TOAST
+// ══════════════════════════════════════
+function showLoading(msg='載入中…') {
+  document.getElementById('loading-text').textContent=msg;
+  document.getElementById('loading').classList.add('show');
+}
+function hideLoading() { document.getElementById('loading').classList.remove('show'); }
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+init();
+</script>
+</body>
+</html>
